@@ -1,43 +1,54 @@
-import os
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForVision2Seq
+import os
 
-# 모델과 프로세서 로드
-model = AutoModelForVision2Seq.from_pretrained("microsoft/kosmos-2-patch14-224")
-processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
+def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
+    # 모델과 프로세서 로드
+    model = AutoModelForVision2Seq.from_pretrained("microsoft/kosmos-2-patch14-224")
+    processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
+    base_name = os.path.splitext(os.path.basename(ppt_file_path))[0]
+    os.makedirs(output_dir, exist_ok=True)
+    final_text_file_path = os.path.join(output_dir, f'all_{base_name}.txt')
 
-# 로컬 이미지 파일 경로 설정
-image_path = "new_image.jpg"  # 여기에 실제 이미지 경로 입력
 
-# 이미지 로드
-image = Image.open(image_path)
+    all_texts = []
 
-# 입력 준비
-inputs = processor(text="<grounding>An image of", images=image, return_tensors="pt")
+    # images_by_slide 딕셔너리 내의 각 슬라이드 이미지 리스트 순회
+    for slide, images in images_by_slide.items():
+       
+        slide_texts = []
 
-# 텍스트 생성
-generated_ids = model.generate(
-    pixel_values=inputs["pixel_values"],
-    input_ids=inputs["input_ids"],
-    attention_mask=inputs["attention_mask"],
-    image_embeds_position_mask=inputs["image_embeds_position_mask"],
-    use_cache=True,
-    max_new_tokens=128,
-)
-generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        # 각 이미지 처리
+        for index, image in enumerate(images):
+            # 이미지에서 텍스트 추출
+            prompt = "<grounding> An image of"
+            inputs = processor(text=prompt, images=image, return_tensors="pt")
+            generated_ids = model.generate(
+                pixel_values=inputs["pixel_values"],
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"],
+                image_embeds=None,
+                image_embeds_position_mask=inputs["image_embeds_position_mask"],
+                use_cache=True,
+                max_new_tokens=64,
+            )
+            
+            generated_text=processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+            processed_text = processor.post_process_generation(generated_text, cleanup_and_extract=False)
+            caption, entities = processor.post_process_generation(generated_text)
+            slide_texts.append(caption)
 
-# 결과 처리
-processed_text, _ = processor.post_process_generation(generated_text)
+        all_texts.append(f"--- {slide} ---\n" + "\n\n".join(slide_texts))
+           
+    with open(final_text_file_path, 'w', encoding='utf-8') as file:
+        file.write("\n\n".join(all_texts))
 
-# 결과 저장 디렉토리 및 파일 이름 설정
-result_dir = "./result_image"
-os.makedirs(result_dir, exist_ok=True)  # 디렉토리가 없으면 생성
-image_filename = os.path.basename(image_path)  # 이미지 파일 이름 추출
-text_filename = os.path.splitext(image_filename)[0] + '.txt'  # 확장자를 .txt로 변경
+    print(f"Generated text saved in directory: {output_dir}")
 
-# 텍스트 파일로 결과 저장
-result_path = os.path.join(result_dir, text_filename)
-with open(result_path, 'w', encoding='utf-8') as f:
-    f.write(processed_text)
+    
 
-print(f"Generated text saved to {result_path}")
+# 이미지 추출 및 텍스트 처리 예시
+from pptx2txt import extract_text_and_images  # Adjust the import statement based on your actual file organization
+# images_by_slide = extract_text_and_images('./test.pptx')
+# ppt_file_path = "./test.pptx"
+process_images_to_texts(images_by_slide, './result_image2txt', ppt_file_path)
