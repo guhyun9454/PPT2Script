@@ -2,6 +2,7 @@ from PIL import Image
 from transformers import AutoProcessor, AutoModelForVision2Seq
 import os
 from pptx2txt import extract_text_and_images  
+import re
 
 def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
     # 모델과 프로세서 로드
@@ -38,7 +39,12 @@ def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
             caption, entities = processor.post_process_generation(generated_text)
             slide_texts.append(caption)
 
-        all_texts.append(f"--- {slide} ---\n" + "\n\n".join(slide_texts))
+        if not re.match(r"An image of a \w+ background", generated_text):
+                caption, entities = processor.post_process_generation(generated_text)
+                slide_texts.append(caption)
+
+        if slide_texts:
+             all_texts.append(f"--- {slide} ---\n" + "\n\n".join(slide_texts))
            
     with open(final_text_file_path, 'w', encoding='utf-8') as file:
         file.write("\n\n".join(all_texts))
@@ -46,6 +52,7 @@ def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
     print(f"Generated text saved in directory: {output_dir}")
     
 # 이미지 추출 및 텍스트 처리 (예시 사용시 주석 해제)
-# images_by_slide = extract_text_and_images('./test.pptx')
-# ppt_file_path = "./test.pptx"
+
+images_by_slide = extract_text_and_images('./test.pptx')
+ppt_file_path = "./test.pptx"
 process_images_to_texts(images_by_slide, './result_image2txt', ppt_file_path)
