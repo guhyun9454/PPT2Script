@@ -32,7 +32,7 @@ def extract_text_and_images(ppt_file_path):
                 images.append(image)
         
         if images:
-            images_by_slide[f"Slide_{slide_number}"] = images
+            images_by_slide[f"Slide {slide_number}"] = images
         
         if slide_text:
             text_content.append('\n'.join(slide_text))
@@ -47,5 +47,4 @@ def extract_text_and_images(ppt_file_path):
 
 # 예시 사용 방법 (실제 사용시 주석 해제)
 extract_text_and_images('./test.pptx')
-
 
