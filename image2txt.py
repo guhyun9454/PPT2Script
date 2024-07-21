@@ -1,11 +1,11 @@
+
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForVision2Seq
 import os
-from pptx2txt import extract_text_and_images  
+from pptx2txt import extract_text_and_images
 import re
 
 def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
-    # 모델과 프로세서 로드
     model = AutoModelForVision2Seq.from_pretrained("microsoft/kosmos-2-patch14-224")
     processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
     base_name = os.path.splitext(os.path.basename(ppt_file_path))[0]
@@ -14,14 +14,10 @@ def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
 
     all_texts = []
 
-    # images_by_slide 딕셔너리 내의 각 슬라이드 이미지 리스트 순회
     for slide, images in images_by_slide.items():
-       
-        slide_texts = []
+        slide_texts = set()  # 중복을 방지하기 위해 set 사용
 
-        # 각 이미지 처리
         for index, image in enumerate(images):
-            # 이미지에서 텍스트 추출
             prompt = "<grounding> An image of"
             inputs = processor(text=prompt, images=image, return_tensors="pt")
             generated_ids = model.generate(
@@ -33,26 +29,23 @@ def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
                 use_cache=True,
                 max_new_tokens=64,
             )
-            
-            generated_text=processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-            processed_text = processor.post_process_generation(generated_text, cleanup_and_extract=False)
+            generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
             caption, entities = processor.post_process_generation(generated_text)
-            slide_texts.append(caption)
 
-        if not re.match(r"An image of a \w+ background", generated_text):
-                caption, entities = processor.post_process_generation(generated_text)
-                slide_texts.append(caption)
+            # "background"가 포함된 문구 제외
+            if "background" not in caption:
+                slide_texts.add(caption)  # 중복 제거를 위해 set에 추가
 
         if slide_texts:
-             all_texts.append(f"--- {slide} ---\n" + "\n\n".join(slide_texts))
-           
+            formatted_texts = "\n\n".join(slide_texts)  # Set에서 중복 제거된 텍스트를 조합
+            all_texts.append(f"--- {slide} ---\n" + formatted_texts)
+    
     with open(final_text_file_path, 'w', encoding='utf-8') as file:
         file.write("\n\n".join(all_texts))
 
-    print(f"Generated text saved in directory: {output_dir}")
-    
-# 이미지 추출 및 텍스트 처리 (예시 사용시 주석 해제)
+    print(f"Generated text saved in file: {final_text_file_path}")
 
+# 이미지 추출 및 텍스트 처리 예시
 images_by_slide = extract_text_and_images('./test.pptx')
 ppt_file_path = "./test.pptx"
 process_images_to_texts(images_by_slide, './result_image2txt', ppt_file_path)
