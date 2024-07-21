@@ -1,6 +1,7 @@
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForVision2Seq
 import os
+from pptx2txt import extract_text_and_images  
 
 def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
     # 모델과 프로세서 로드
@@ -9,7 +10,6 @@ def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
     base_name = os.path.splitext(os.path.basename(ppt_file_path))[0]
     os.makedirs(output_dir, exist_ok=True)
     final_text_file_path = os.path.join(output_dir, f'all_{base_name}.txt')
-
 
     all_texts = []
 
@@ -44,11 +44,8 @@ def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
         file.write("\n\n".join(all_texts))
 
     print(f"Generated text saved in directory: {output_dir}")
-
     
-
-# 이미지 추출 및 텍스트 처리 예시
-from pptx2txt import extract_text_and_images  # Adjust the import statement based on your actual file organization
+# 이미지 추출 및 텍스트 처리 (예시 사용시 주석 해제)
 # images_by_slide = extract_text_and_images('./test.pptx')
 # ppt_file_path = "./test.pptx"
 process_images_to_texts(images_by_slide, './result_image2txt', ppt_file_path)

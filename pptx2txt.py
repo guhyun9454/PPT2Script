@@ -46,6 +46,6 @@ def extract_text_and_images(ppt_file_path):
     return images_by_slide
 
 # 예시 사용 방법 (실제 사용시 주석 해제)
-# extract_text_and_images('./test.pptx')
+extract_text_and_images('./test.pptx')
 
 
