@@ -24,7 +24,7 @@ def save_text_to_file(text, file_path):
 def process_ppt(ppt_file_path):
     # 파일 이름과 디렉토리 추출
     base_name = os.path.splitext(os.path.basename(ppt_file_path))[0]
-    result_dir_path = os.path.join(os.path.dirname(ppt_file_path), 'result')
+    result_dir_path = os.path.join(os.path.dirname(ppt_file_path), 'result_txt')
     result_file_path = os.path.join(result_dir_path, base_name + '.txt')
 
     # 텍스트 추출 및 저장
