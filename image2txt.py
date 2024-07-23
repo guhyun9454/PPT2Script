@@ -2,7 +2,7 @@
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForVision2Seq
 import os
-from pptx2txt import extract_text_and_images
+from pptx_conversion import extract_text_and_images
 import re
 
 def process_images_to_texts(images_by_slide, output_dir, ppt_file_path):
