@@ -16,46 +16,35 @@ def merge_text_and_images(ppt_file_path, output_dir):
 
     # 최종 결과물 파일에 저장
     with open(final_text_file_path, 'w', encoding='utf-8') as file:
-        for slide_number, (text_content, image_texts, slide_tables, slide_charts) in enumerate(zip(text_content_by_slide, all_images_text, tables_data, charts_data), start=1):
+        for slide_number, (text_content, slide_texts, slide_tables, slide_charts) in enumerate(zip(text_content_by_slide, all_images_text, tables_data, charts_data),start=1):
             
             slide_header = f"--- Slide {slide_number} ---"
             file.write(slide_header + "\n")
 
             # 이미지 텍스트 먼저 추가
-            if image_texts:
-                file.write("\n\n" + image_texts.strip())  # 불필요한 공백 제거
+            if slide_texts:
+                file.write("\n\n" + slide_texts.strip())  # 불필요한 공백 제거
             
             # 슬라이드 텍스트 추가
             if text_content:
                 file.write("\n\n" + text_content.strip())  # 불필요한 공백 제거
             
-            # 표 데이터 추가
             if slide_tables:
-                for table in slide_tables:
-                    formatted_table = format_table(table)
-                    file.write("\n\n" + formatted_table.strip())  # 불필요한 공백 제거
+                combined_tables = "\n\n".join(slide_tables)
+                file.write("\n\n" + combined_tables.strip() + "\n\n")
 
-            # 차트 데이터 추가
             if slide_charts:
-                for chart in slide_charts:
-                    formatted_chart = format_chart(chart)
-                    file.write("\n\n" + formatted_chart.strip())  # 불필요한 공백 제거
+                combined_charts = "\n\n".join(slide_charts)
+                file.write("\n\n" + combined_charts.strip() + "\n\n") 
 
             file.write("\n\n")
 
     print(f"Generated text saved in file: {final_text_file_path}")
 
-def format_table(table):
-    """Formats the table data for writing to text file."""
-    return "\n".join(table)
 
-def format_chart(chart):
-    """Formats the chart data for writing to text file."""
-    # Assuming chart is a string or a formatable object
-    return str(chart)
 
 # 예시 (사용시 각주 제거 후 사용)
 if __name__ == "__main__":
-    ppt_file_path = "./test2.pptx"
+    ppt_file_path = "./test.pptx"
     output_dir = './result_txt'
     merge_text_and_images(ppt_file_path, output_dir)
