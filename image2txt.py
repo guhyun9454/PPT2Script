@@ -6,7 +6,8 @@ def process_images_to_texts(images_by_slide, text_content_by_slide):
     processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
     
 
-    all_images_texts = []
+    all_images_texts = [''] * len(text_content_by_slide)
+
     
     for slide_number, images in images_by_slide.items():
         slide_texts = set()
