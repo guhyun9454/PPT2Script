@@ -2,7 +2,7 @@ from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from PIL import Image
 import io
-import os
+
 
 def extract_text_and_images(ppt_file_path):
     presentation = Presentation(ppt_file_path)
