@@ -1,40 +1,45 @@
-from transformers import AutoProcessor, AutoModelForVision2Seq
-
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from PIL import Image
 
 def process_images_to_texts(images_by_slide, text_content_by_slide):
-    model = AutoModelForVision2Seq.from_pretrained("microsoft/kosmos-2-patch14-224")
-    processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
-    
+    # 모델 및 토크나이저 로드
+    model_id = "vikhyatk/moondream2"
+    revision = "2024-03-06"
+    model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, revision=revision)
+    tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 
-    all_images_texts = [''] * len(text_content_by_slide)
+    # 슬라이드 키를 정수로 변환
+    try:
+        slide_mapping = {int(key.split()[-1]): value for key, value in images_by_slide.items()}
+    except ValueError:
+        raise ValueError("Slide keys in images_by_slide must end with an integer (e.g., 'Slide 1').")
 
-    
-    for slide_number, images in images_by_slide.items():
-        slide_texts = set()
+    # 슬라이드 수 계산
+    num_slides = max(slide_mapping.keys()) if slide_mapping else 0
+    all_images_texts = [''] * num_slides
 
-        for index, image in enumerate(images):
-            prompt = "<grounding> An image of"
-            inputs = processor(text=prompt, images=image, return_tensors="pt")
-            generated_ids = model.generate(
-                pixel_values=inputs["pixel_values"],
-                input_ids=inputs["input_ids"],
-                attention_mask=inputs["attention_mask"],
-                image_embeds=None,
-                image_embeds_position_mask=inputs["image_embeds_position_mask"],
-                use_cache=True,
-                max_new_tokens=64,
-            )
-            generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-            caption, entities = processor.post_process_generation(generated_text)
+    for slide_number, images in slide_mapping.items():
+        slide_texts = set()  # 중복 제거를 위한 집합
 
-            if "background" not in caption:
-                slide_texts.add(caption)
+        if not images:  # 이미지가 없는 경우 스킵
+            continue
 
+        for image in images:
+            # 이미지 인코딩 및 쿼리 수행
+            try:
+                enc_image = model.encode_image(image)
+                query = "Describe this image."
+                response = model.answer_question(enc_image, query, tokenizer)
+
+                if response:
+                    slide_texts.add(response.strip())  # 공백 제거 후 추가
+            except Exception as e:
+                print(f"Error processing image on slide {slide_number}: {e}")
+                continue
+
+        # 슬라이드 텍스트 포맷팅 및 저장
         if slide_texts:
             formatted_texts = "\n\n".join(slide_texts)
-            all_images_texts.append(f"{formatted_texts}")
-        else:
-            all_images_texts.append("")
+            all_images_texts[slide_number - 1] = formatted_texts  # 슬라이드 번호에 맞게 저장
 
     return all_images_texts, text_content_by_slide
-
