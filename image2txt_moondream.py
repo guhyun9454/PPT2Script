@@ -5,6 +5,27 @@ from PIL import Image
 import io
 
 
+# 텍스트 필터링 함수
+def filter_descriptions(description):
+    # 불필요한 텍스트를 필터링하기 위한 키워드 목록
+    exclusion_keywords = [
+        "solid color",
+        "devoid of",
+        "no discernible",
+        "monochromatic",
+        "minimalist aesthetic",
+        "empty",
+        "unbroken",
+    ]
+    
+    # 키워드가 포함된 경우 빈 문자열 반환
+    for keyword in exclusion_keywords:
+        if keyword in description.lower():
+            return ""
+    
+    return description
+
+
 # 추출한 이미지를 텍스트로 변환하는 함수
 def process_images_to_texts(images_by_slide, text_content_by_slide):
     model_id = "vikhyatk/moondream2"
@@ -30,7 +51,10 @@ def process_images_to_texts(images_by_slide, text_content_by_slide):
                 response = model.answer_question(enc_image, query, tokenizer)
 
                 if response:
-                    slide_texts.add(response.strip())
+                    # 응답을 필터링
+                    filtered_response = filter_descriptions(response.strip())
+                    if filtered_response:  # 필터링 후 내용이 있으면 추가
+                        slide_texts.add(filtered_response)
             except Exception as e:
                 print(f"Error processing image on {slide_number}: {e}")
 
@@ -40,4 +64,3 @@ def process_images_to_texts(images_by_slide, text_content_by_slide):
             all_images_texts[slide_index] = formatted_texts
 
     return all_images_texts, text_content_by_slide
-
