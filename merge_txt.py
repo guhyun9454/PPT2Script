@@ -1,6 +1,6 @@
 import os
 from pptx_conversion import extract_text_and_images
-from image2txt import process_images_to_texts
+from image2txt_moondream import process_images_to_texts
 from pptx_charts_tables_extractor import extract_tables, extract_charts
 
 def merge_text_and_images(ppt_file_path, output_dir):
@@ -56,6 +56,6 @@ def merge_text_and_images(ppt_file_path, output_dir):
 
 # 예시 (사용시 각주 제거 후 사용)
 if __name__ == "__main__":
-    ppt_file_path = "./test3.pptx"
+    ppt_file_path = "./test.pptx"
     output_dir = './result_txt'
     merge_text_and_images(ppt_file_path, output_dir)

@@ -5,7 +5,7 @@ import io
 
 def extract_text_and_images(ppt_file_path):
     presentation = Presentation(ppt_file_path)
-    text_content_by_slide = [''] * len(presentation.slides)  # 슬라이드 수만큼 빈 문자열로 초기화
+    text_content_by_slide = [[] for _ in presentation.slides]  # 슬라이드 수만큼 빈 문자열로 초기화
     images_by_slide = {}
 
     for slide_number, slide in enumerate(presentation.slides, start=1):
