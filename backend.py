@@ -21,6 +21,7 @@ The script format should always follow this structure:
 1. Each slide starts with "--- Slide X ---".
 2. Provide a concise and engaging script tailored to the slide content.
 3. Ensure each slide script is clear and professional.
+4. Ignore the meaningless description of images.
 
 The content of the slides is as follows:
 

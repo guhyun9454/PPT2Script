@@ -3,6 +3,8 @@ import requests
 import time
 
 st.title("PPT2SCRIPT - TGTHON+")
+st.caption("사진으로만 구성된 PPT는 사용할 수 없습니다.")
+st.caption("의미없는 사진이 많을 시 잘 작동하지 않을 수 있습니다.")
 
 uploaded_file = st.file_uploader("Upload your PPT file", type=["pptx"])
 
