@@ -2,7 +2,7 @@ from pptx_conversion import extract_text_and_images
 from image2txt_moondream import process_images_to_texts
 from pptx_charts_tables_extractor import extract_tables, extract_charts
 
-def merge_text_and_images(ppt_file_path):
+def ppt2txt(ppt_file_path):
     # 슬라이드별 텍스트, 이미지 텍스트, 표 데이터, 차트 데이터 추출
     images_by_slide, text_content_by_slide = extract_text_and_images(ppt_file_path)
     all_images_text, text_content_by_slide = process_images_to_texts(images_by_slide, text_content_by_slide)
