@@ -27,13 +27,9 @@ def filter_descriptions(description):
 
 
 # 추출한 이미지를 텍스트로 변환하는 함수
-def process_images_to_texts(images_by_slide, text_content_by_slide):
-    model_id = "vikhyatk/moondream2"
-    revision = "2024-08-26"
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id, trust_remote_code=True, revision=revision
-    )
-    tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
+def process_images_to_texts(model, tokenizer, images_by_slide, text_content_by_slide):
+
+
 
     # 텍스트 데이터를 슬라이드 수만큼 초기화
     all_images_texts = [''] * len(text_content_by_slide)
