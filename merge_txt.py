@@ -41,5 +41,5 @@ def ppt2txt(ppt_file_path):
 # 예시 (사용시 각주 제거 후 사용)
 if __name__ == "__main__":
     ppt_file_path = "./test.pptx"
-    output = merge_text_and_images(ppt_file_path)
+    output = ppt2txt(ppt_file_path)
     print(output)  # 결과 문자열 출력

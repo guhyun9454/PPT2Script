@@ -5,7 +5,7 @@ def process_images_to_texts(images_by_slide, text_content_by_slide):
     # 모델 및 토크나이저 로드
     model_id = "vikhyatk/moondream2"
     revision = "2024-03-06"
-    model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, revision=revision)
+    model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, revision=revision,device_map="cuda")
     tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 
     # 슬라이드 키를 정수로 변환
