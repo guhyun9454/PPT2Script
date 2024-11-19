@@ -4,7 +4,7 @@ import time
 
 st.title("PPT2SCRIPT - TGTHON+")
 
-uploaded_file = st.file_uploader("Upload your PPT file", type=["ppt", "pptx"])
+uploaded_file = st.file_uploader("Upload your PPT file", type=["pptx"])
 
 url = "http://127.0.0.1:8000/"
 
@@ -34,7 +34,7 @@ if uploaded_file:
     status = "uploaded"
 
     with st.spinner("AI 작업중..."):
-        while status != "completed":
+        while status not in ["completed", "error"] :
             time.sleep(1)  # 1초 대기
             status_response = requests.get(status_url)
             if status_response.status_code == 200:
@@ -48,6 +48,10 @@ if uploaded_file:
     if status == "completed":
         script_response = requests.get(script_url)
         if script_response.status_code == 200:
-            st.text_area("Generated Script:", script_response.json()["script"], height=400)
+            st.text_area("대본:", script_response.json()["script"], height=400)
         else:
             st.error("Failed to fetch script.")
+    elif status == "error":
+        # 오류 메시지 출력
+        error_message = status_data.get("result", "An unknown error occurred.")
+        st.error(f"Processing failed: {error_message}")

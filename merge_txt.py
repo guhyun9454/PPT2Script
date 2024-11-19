@@ -5,10 +5,16 @@ from pptx_charts_tables_extractor import extract_tables, extract_charts
 def ppt2txt(model,tokenizer,ppt_file_path):
     # 슬라이드별 텍스트, 이미지 텍스트, 표 데이터, 차트 데이터 추출
     images_by_slide, text_content_by_slide = extract_text_and_images(ppt_file_path)
+
+    if sum([len(i) for i in text_content_by_slide ]) == 0:
+        return None
+    
     all_images_text, text_content_by_slide = process_images_to_texts(model,tokenizer,images_by_slide, text_content_by_slide)
     tables_data = extract_tables(ppt_file_path)
     charts_data = extract_charts(ppt_file_path)
 
+
+    
     # 결과를 저장할 문자열 초기화
     result_text = ""
 

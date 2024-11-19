@@ -108,6 +108,12 @@ async def process_ppt(file_path: str, task_id: str):
         # PPT -> 텍스트 변환 
         tasks[task_id]["status"] = "processing_ai"
         text = ppt2txt(model,tokenizer,file_path)
+        if text is None:
+            error_message = "텍스트 변환 실패: PPT 파일에서 텍스트를 추출할 수 없습니다. 사진으로만 구성된 PPT는 변환할 수 없습니다."
+            print(task_id[-4:], error_message)
+            tasks[task_id]["status"] = "error"
+            tasks[task_id]["result"] = error_message
+            return
 
         print(task_id[-4:],"txt 변환 성공, 대본 제작 시작")
 
